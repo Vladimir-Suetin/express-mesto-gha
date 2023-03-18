@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const cardShema = new mongoose.Shema({
+const cardSchema = new mongoose.Schema({
   name: {
     type: String,
     requred: true,
