@@ -9,12 +9,14 @@ const getUsers = (req, res) => {
 const getUser = (req, res) => {
   const { id } = req.params;
 
-  return User.findById(id).then((user) => res.status(200).send(user));
+  return User.findById(id)
+    .then((user) => res.status(200).send(user))
+    .catch((err) => res.status(500).send({ message: err.message }));
 };
 
 const createUser = (req, res) => {
   User.create({ ...req.body })
-    .then(res.status(200).send(req.body))
+    .then((user) => res.status(201).send(user))
     .catch((err) => res.status(500).send({ message: err.message }));
 };
 
