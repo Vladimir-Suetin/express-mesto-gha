@@ -8,6 +8,7 @@ const getUsers = (req, res) => {
 
 const getUser = (req, res) => {
   const { id } = req.params;
+  console.log(id);
 
   return User.findById(id)
     .then((user) => res.status(200).send(user))
