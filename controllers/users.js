@@ -21,8 +21,39 @@ const createUser = (req, res) => {
     .catch((err) => res.status(500).send({ message: err.message }));
 };
 
+const updateUser = (req, res) => {
+  const { name, about, _id: userId } = req.body;
+  User.findByIdAndUpdate(
+    userId,
+    { name, about },
+    {
+      new: true, // обработчик then получит на вход обновлённую запись
+      runValidators: true, // данные будут валидированы перед изменением
+    }
+  )
+    // .then((user) => res.status(201).send(user))
+    .then((user) => res.status(201).send(user))
+    .catch((err) => res.status(500).send({ message: err.message }));
+};
+
+const updateAvatar = (req, res) => {
+  const { avatar, _id: userId } = req.body;
+  User.findByIdAndUpdate(
+    userId,
+    { avatar },
+    {
+      new: true, // обработчик then получит на вход обновлённую запись
+      runValidators: true, // данные будут валидированы перед изменением});
+    }
+  )
+    .then((user) => res.status(201).send(user))
+    .catch((err) => res.status(500).send({ message: err.message }));
+};
+
 module.exports = {
   getUsers,
   getUser,
   createUser,
+  updateUser,
+  updateAvatar,
 };

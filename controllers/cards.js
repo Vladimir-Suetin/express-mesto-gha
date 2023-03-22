@@ -16,10 +16,11 @@ const createCard = (req, res) => {
 };
 
 const deleteCard = (req, res) => {
-  const { cardId } = req.params;
+  const { cardId } = req.params.id;
   Card.findByIdAndRemove(cardId)
-    .then((card) => res.status(200).send({ message: `Card '${card.name}' deleted`}))
-    // .then((card) => console.log(card.name))
+    .then((card) => {
+      res.status(200).send({ message: `Card '${card.name}' deleted` });
+    })
     .catch((err) => res.status(500).send({ message: err.message }));
 };
 
