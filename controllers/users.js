@@ -22,7 +22,8 @@ const createUser = (req, res) => {
 };
 
 const updateUser = (req, res) => {
-  const { name, about, _id: userId } = req.body;
+  const userId = req.user._id;
+  const { name, about } = req.body;
   User.findByIdAndUpdate(
     userId,
     { name, about },
@@ -37,7 +38,8 @@ const updateUser = (req, res) => {
 };
 
 const updateAvatar = (req, res) => {
-  const { avatar, _id: userId } = req.body;
+  const userId = req.user._id;
+  const { avatar } = req.body;
   User.findByIdAndUpdate(
     userId,
     { avatar },
