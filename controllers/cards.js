@@ -4,12 +4,10 @@ const {
   STATUS_OK,
   STATUS_CREATED,
   STATUS_BAD_REQUEST,
-  STATUS_NOT_FOUND,
   STATUS_INTERNAL_SERVER_ERROR,
 } = require('../utils/serverStatus');
 
 const BadRequestError = require('../errors/badRequestError');
-const NotFoundError = require('../errors/notFoundError');
 const InternalServerError = require('../errors/internalServerError');
 
 const getCards = (req, res) => {
@@ -29,9 +27,7 @@ const createCard = (req, res) => {
     .then((card) => res.status(STATUS_CREATED).send({ card }))
     .catch((err) => {
       if (err.name === BadRequestError) {
-        res
-          .status(STATUS_BAD_REQUEST)
-          .send({ message: 'При создании карточки произошла ошибка' });
+        res.status(STATUS_BAD_REQUEST).send({ message: 'При создании карточки произошла ошибка' });
       }
     });
 };
@@ -44,9 +40,7 @@ const deleteCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === BadRequestError) {
-        res
-          .status(STATUS_BAD_REQUEST)
-          .send({ message: 'При удалении карточки произошла ошибка' });
+        res.status(STATUS_BAD_REQUEST).send({ message: 'При удалении карточки произошла ошибка' });
       }
     });
 };
@@ -55,14 +49,12 @@ const likeCard = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
-    { new: true }
+    { new: true },
   )
     .then((card) => res.status(STATUS_CREATED).send({ card }))
     .catch((err) => {
       if (err.name === BadRequestError) {
-        res
-          .status(STATUS_BAD_REQUEST)
-          .send({ message: 'При добавлении лайка произошла ошибка' });
+        res.status(STATUS_BAD_REQUEST).send({ message: 'При добавлении лайка произошла ошибка' });
       }
     });
 };
@@ -71,14 +63,12 @@ const dislikeCard = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } }, // убрать _id из массива
-    { new: true }
+    { new: true },
   )
     .then((card) => res.status(STATUS_CREATED).send({ card }))
     .catch((err) => {
       if (err.name === BadRequestError) {
-        res
-          .status(STATUS_BAD_REQUEST)
-          .send({ message: 'При удалении лайка произошла ошибка' });
+        res.status(STATUS_BAD_REQUEST).send({ message: 'При удалении лайка произошла ошибка' });
       }
     });
 };

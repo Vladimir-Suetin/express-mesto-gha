@@ -31,8 +31,7 @@ const getUser = (req, res) => {
     .catch((err) => {
       if (err.name === NotFoundError) {
         res.status(STATUS_NOT_FOUND).send({
-          message:
-            'такого пользователя не существует или переданы некорректные данные',
+          message: 'такого пользователя не существует или переданы некорректные данные',
         });
       }
     });
@@ -59,7 +58,7 @@ const updateUser = (req, res) => {
     {
       new: true, // обработчик then получит на вход обновлённую запись
       runValidators: true, // данные будут валидированы перед изменением
-    }
+    },
   )
     .then((user) => res.status(STATUS_CREATED).send({ user }))
     .catch((err) => {
@@ -80,14 +79,12 @@ const updateAvatar = (req, res) => {
     {
       new: true, // обработчик then получит на вход обновлённую запись
       runValidators: true, // данные будут валидированы перед изменением});
-    }
+    },
   )
     .then((user) => res.status(STATUS_CREATED).send({ user }))
     .catch((err) => {
       if (err.name === BadRequestError) {
-        res
-          .status(STATUS_BAD_REQUEST)
-          .send({ message: 'При изменении аватара произошла ошибка' });
+        res.status(STATUS_BAD_REQUEST).send({ message: 'При изменении аватара произошла ошибка' });
       }
     });
 };
