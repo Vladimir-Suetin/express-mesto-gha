@@ -8,16 +8,11 @@ const {
 } = require('../utils/serverStatus');
 
 const BadRequestError = require('../errors/badRequestError');
-const InternalServerError = require('../errors/internalServerError');
 
 const getCards = (req, res) => {
   Card.find({})
     .then((cards) => res.status(STATUS_OK).send({ cards }))
-    .catch((err) => {
-      if (err.name === InternalServerError) {
-        res.status(STATUS_INTERNAL_SERVER_ERROR).send({ message: err.message });
-      }
-    });
+    .catch(() => res.status(STATUS_INTERNAL_SERVER_ERROR));
 };
 
 const createCard = (req, res) => {
@@ -49,7 +44,7 @@ const likeCard = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
-    { new: true },
+    { new: true }
   )
     .then((card) => res.status(STATUS_CREATED).send({ card }))
     .catch((err) => {
@@ -63,7 +58,7 @@ const dislikeCard = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } }, // убрать _id из массива
-    { new: true },
+    { new: true }
   )
     .then((card) => res.status(STATUS_CREATED).send({ card }))
     .catch((err) => {

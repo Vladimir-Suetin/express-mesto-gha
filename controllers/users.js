@@ -9,16 +9,11 @@ const {
 
 const BadRequestError = require('../errors/badRequestError');
 const NotFoundError = require('../errors/notFoundError');
-const InternalServerError = require('../errors/internalServerError');
 
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.status(STATUS_OK).send({ users }))
-    .catch((err) => {
-      if (err.name === InternalServerError) {
-        res.status(STATUS_INTERNAL_SERVER_ERROR).send({ message: err.message });
-      }
-    });
+    .catch(() => res.status(STATUS_INTERNAL_SERVER_ERROR));
 };
 
 const getUser = (req, res) => {
@@ -26,26 +21,47 @@ const getUser = (req, res) => {
 
   return User.findById(id)
     .then((user) => {
+      if (!user) {
+        throw new NotFoundError('Такого пользователя не существует или переданы некорректные данные');
+      }
       res.status(STATUS_OK).send({ user });
     })
     .catch((err) => {
-      if (err.name === NotFoundError) {
-        res.status(STATUS_NOT_FOUND).send({
-          message: 'такого пользователя не существует или переданы некорректные данные',
-        });
+      if (err instanceof NotFoundError) {
+        return res.status(err.statusCode).send({ message: err.message });
       }
+      if (err.name === 'CastError') {
+        return res.status(STATUS_BAD_REQUEST).send({ message: 'введен некорректный id пользователя' });
+      }
+      return err;
     });
 };
 
 const createUser = (req, res) => {
   User.create({ ...req.body })
-    .then((user) => res.status(STATUS_CREATED).send({ user }))
+    .then((user) => {
+      if (!user) {
+        throw new BadRequestError('Ошибка при создании пользователя');
+      }
+      res.status(STATUS_CREATED).send({ user });
+    })
     .catch((err) => {
-      if (err.name === BadRequestError) {
-        res.status(STATUS_BAD_REQUEST).send({
-          message: 'Переданы некоррекные данные при создании пользователя',
+      if (err instanceof BadRequestError) {
+        return res.status(err.statusCode).send({
+          message: err.message,
         });
       }
+      if (err.name === 'ValidationError') {
+        return res.status(STATUS_NOT_FOUND).send({
+          message: err.message,
+        });
+      }
+      if (err.name === 'CastError') {
+        return res.status(STATUS_NOT_FOUND).send({
+          message: err.message,
+        });
+      }
+      return err;
     });
 };
 
@@ -58,7 +74,7 @@ const updateUser = (req, res) => {
     {
       new: true, // обработчик then получит на вход обновлённую запись
       runValidators: true, // данные будут валидированы перед изменением
-    },
+    }
   )
     .then((user) => res.status(STATUS_CREATED).send({ user }))
     .catch((err) => {
@@ -79,7 +95,7 @@ const updateAvatar = (req, res) => {
     {
       new: true, // обработчик then получит на вход обновлённую запись
       runValidators: true, // данные будут валидированы перед изменением});
-    },
+    }
   )
     .then((user) => res.status(STATUS_CREATED).send({ user }))
     .catch((err) => {
