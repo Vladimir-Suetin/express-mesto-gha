@@ -12,6 +12,7 @@ const NotFoundError = require('../errors/notFoundError');
 
 const getCards = (req, res) => {
   Card.find({})
+    .populate('owner')
     .then((cards) => res.status(STATUS_OK).send({ cards }))
     .catch((err) => {
       res.status(STATUS_INTERNAL_SERVER_ERROR);
@@ -20,9 +21,9 @@ const getCards = (req, res) => {
 };
 
 const createCard = (req, res) => {
-  const owner = req.user._id;
+  const user = req.user._id;
   const { name, link } = req.body;
-  Card.create({ name, link, owner })
+  Card.create({ name, link, owner: user })
     .then((card) => {
       if (!card) {
         throw new BadRequestError('Ошибка при создании карточки');
@@ -80,6 +81,7 @@ const likeCard = (req, res) => {
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
     { new: true },
   )
+    .populate('likes')
     .then((card) => {
       if (!card) {
         throw new NotFoundError(`Карточка id: ${cardId} не найдена`);
