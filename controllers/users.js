@@ -6,14 +6,14 @@ const {
   STATUS_INTERNAL_SERVER_ERROR,
 } = require('../utils/serverStatus');
 
-const BadRequestError = require('../errors/badRequestError');
 const NotFoundError = require('../errors/notFoundError');
+const InternalServerError = require('../errors/internalServerError');
 
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.status(STATUS_OK).send({ users }))
     .catch((err) => {
-      res.status(STATUS_INTERNAL_SERVER_ERROR);
+      res.status(STATUS_INTERNAL_SERVER_ERROR).send({ message: err.message });
       console.log({ message: err.message });
     });
 };
@@ -35,24 +35,16 @@ const getUser = (req, res) => {
       if (err.name === 'CastError') {
         return res.status(STATUS_BAD_REQUEST).send({ message: 'введен некорректный id пользователя' });
       }
-      return err;
+      return new InternalServerError();
     });
 };
 
 const createUser = (req, res) => {
   User.create({ ...req.body })
     .then((user) => {
-      if (!user) {
-        throw new BadRequestError('Ошибка при создании пользователя');
-      }
       res.status(STATUS_CREATED).send({ user });
     })
     .catch((err) => {
-      if (err instanceof BadRequestError) {
-        return res.status(err.statusCode).send({
-          message: err.message,
-        });
-      }
       if (err.name === 'ValidationError') {
         return res.status(STATUS_BAD_REQUEST).send({
           message: err.message,
@@ -63,7 +55,7 @@ const createUser = (req, res) => {
           message: err.message,
         });
       }
-      return err;
+      return new InternalServerError();
     });
 };
 
@@ -82,7 +74,7 @@ const updateUser = (req, res) => {
       if (!user) {
         throw new NotFoundError(`Пользователь id: ${userId} не найден`);
       }
-      res.status(STATUS_CREATED).send({ user });
+      res.status(STATUS_OK).send({ user });
     })
     .catch((err) => {
       if (err instanceof NotFoundError) {
@@ -95,12 +87,7 @@ const updateUser = (req, res) => {
           message: err.message,
         });
       }
-      if (err.name === 'CastError') {
-        return res.status(STATUS_BAD_REQUEST).send({
-          message: err.message,
-        });
-      }
-      return err;
+      return new InternalServerError();
     });
 };
 
@@ -119,7 +106,7 @@ const updateAvatar = (req, res) => {
       if (!user) {
         throw new NotFoundError(`Пользователь id: ${userId} не найден`);
       }
-      res.status(STATUS_CREATED).send({ user });
+      res.status(STATUS_OK).send({ user });
     })
     .catch((err) => {
       if (err instanceof NotFoundError) {
@@ -132,12 +119,7 @@ const updateAvatar = (req, res) => {
           message: err.message,
         });
       }
-      if (err.name === 'CastError') {
-        return res.status(STATUS_BAD_REQUEST).send({
-          message: err.message,
-        });
-      }
-      return err;
+      return new InternalServerError();
     });
 };
 
