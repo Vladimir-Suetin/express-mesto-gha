@@ -12,7 +12,7 @@ const NotFoundError = require('../errors/notFoundError');
 
 const getCards = (req, res) => {
   Card.find({})
-    .populate('owner', 'likes')
+    .populate(['owner', 'likes'])
     .then((cards) => res.status(STATUS_OK).send({ cards }))
     .catch((err) => {
       if (res.statusCode === undefined || res.statusCode === STATUS_INTERNAL_SERVER_ERROR) {
