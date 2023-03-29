@@ -7,13 +7,12 @@ const {
 } = require('../utils/serverStatus');
 
 const NotFoundError = require('../errors/notFoundError');
-const InternalServerError = require('../errors/internalServerError');
 
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.status(STATUS_OK).send({ users }))
     .catch((err) => {
-      res.status(STATUS_INTERNAL_SERVER_ERROR).send({ message: err.message });
+      res.status(STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' });
       console.log({ message: err.message });
     });
 };
@@ -35,7 +34,10 @@ const getUser = (req, res) => {
       if (err.name === 'CastError') {
         return res.status(STATUS_BAD_REQUEST).send({ message: 'введен некорректный id пользователя' });
       }
-      return new InternalServerError();
+      if (res.statusCode === undefined || res.statusCode === STATUS_INTERNAL_SERVER_ERROR) {
+        return res.status(STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' });
+      }
+      return console.log({ message: err.message });
     });
 };
 
@@ -55,7 +57,10 @@ const createUser = (req, res) => {
           message: err.message,
         });
       }
-      return new InternalServerError();
+      if (res.statusCode === undefined || res.statusCode === STATUS_INTERNAL_SERVER_ERROR) {
+        return res.status(STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' });
+      }
+      return console.log({ message: err.message });
     });
 };
 
@@ -87,7 +92,10 @@ const updateUser = (req, res) => {
           message: err.message,
         });
       }
-      return new InternalServerError();
+      if (res.statusCode === undefined || res.statusCode === STATUS_INTERNAL_SERVER_ERROR) {
+        return res.status(STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' });
+      }
+      return console.log({ message: err.message });
     });
 };
 
@@ -119,7 +127,10 @@ const updateAvatar = (req, res) => {
           message: err.message,
         });
       }
-      return new InternalServerError();
+      if (res.statusCode === undefined || res.statusCode === STATUS_INTERNAL_SERVER_ERROR) {
+        return res.status(STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' });
+      }
+      return console.log({ message: err.message });
     });
 };
 
