@@ -7,7 +7,6 @@ const {
   STATUS_INTERNAL_SERVER_ERROR,
 } = require('../utils/serverStatus');
 
-const BadRequestError = require('../errors/badRequestError');
 const NotFoundError = require('../errors/notFoundError');
 
 const getCards = (req, res) => {
@@ -15,9 +14,7 @@ const getCards = (req, res) => {
     .populate(['owner', 'likes'])
     .then((cards) => res.status(STATUS_OK).send({ cards }))
     .catch((err) => {
-      if (res.statusCode === undefined || res.statusCode === STATUS_INTERNAL_SERVER_ERROR) {
-        return res.status(STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' });
-      }
+      res.status(STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' });
       return console.log({ message: err.message });
     });
 };
@@ -35,9 +32,7 @@ const createCard = (req, res) => {
           message: err.message,
         });
       }
-      if (res.statusCode === undefined || res.statusCode === STATUS_INTERNAL_SERVER_ERROR) {
-        return res.status(STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' });
-      }
+      res.status(STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' });
       return console.log({ message: err.message });
     });
 };
@@ -58,12 +53,7 @@ const deleteCard = (req, res) => {
       if (err instanceof NotFoundError) {
         return res.status(err.statusCode).send({ message: err.message });
       }
-      if (err instanceof BadRequestError) {
-        return res.status(err.statusCode).send({ message: err.message });
-      }
-      if (res.statusCode === undefined || res.statusCode === STATUS_INTERNAL_SERVER_ERROR) {
-        return res.status(STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' });
-      }
+      res.status(STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' });
       return console.log({ message: err.message });
     });
 };
@@ -90,9 +80,7 @@ const likeCard = (req, res) => {
       if (err.name === 'CastError') {
         return res.status(STATUS_BAD_REQUEST).send({ message: 'введен некорректный id карточки' });
       }
-      if (res.statusCode === undefined || res.statusCode === STATUS_INTERNAL_SERVER_ERROR) {
-        return res.status(STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' });
-      }
+      res.status(STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' });
       return console.log({ message: err.message });
     });
 };
@@ -118,9 +106,7 @@ const dislikeCard = (req, res) => {
       if (err.name === 'CastError') {
         return res.status(STATUS_BAD_REQUEST).send({ message: 'введен некорректный id карточки' });
       }
-      if (res.statusCode === undefined || res.statusCode === STATUS_INTERNAL_SERVER_ERROR) {
-        return res.status(STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' });
-      }
+      res.status(STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' });
       return console.log({ message: err.message });
     });
 };

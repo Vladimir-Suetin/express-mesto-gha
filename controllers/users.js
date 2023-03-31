@@ -34,9 +34,7 @@ const getUser = (req, res) => {
       if (err.name === 'CastError') {
         return res.status(STATUS_BAD_REQUEST).send({ message: 'введен некорректный id пользователя' });
       }
-      if (res.statusCode === undefined || res.statusCode === STATUS_INTERNAL_SERVER_ERROR) {
-        return res.status(STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' });
-      }
+      res.status(STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' });
       return console.log({ message: err.message });
     });
 };
@@ -52,14 +50,7 @@ const createUser = (req, res) => {
           message: err.message,
         });
       }
-      if (err.name === 'CastError') {
-        return res.status(STATUS_BAD_REQUEST).send({
-          message: err.message,
-        });
-      }
-      if (res.statusCode === undefined || res.statusCode === STATUS_INTERNAL_SERVER_ERROR) {
-        return res.status(STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' });
-      }
+      res.status(STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' });
       return console.log({ message: err.message });
     });
 };
@@ -92,9 +83,7 @@ const updateUser = (req, res) => {
           message: err.message,
         });
       }
-      if (res.statusCode === undefined || res.statusCode === STATUS_INTERNAL_SERVER_ERROR) {
-        return res.status(STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' });
-      }
+      res.status(STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' });
       return console.log({ message: err.message });
     });
 };
@@ -127,9 +116,7 @@ const updateAvatar = (req, res) => {
           message: err.message,
         });
       }
-      if (res.statusCode === undefined || res.statusCode === STATUS_INTERNAL_SERVER_ERROR) {
-        return res.status(STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' });
-      }
+      res.status(STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' });
       return console.log({ message: err.message });
     });
 };
