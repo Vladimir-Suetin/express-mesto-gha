@@ -1,9 +1,13 @@
-const User = require('../models/user');
 const bcrypt = require('bcrypt');
+const jsonwebtoken = require('jsonwebtoken');
+const User = require('../models/user');
+const { JWT_SECRET } = require('../config');
+
 const {
   STATUS_OK,
   STATUS_CREATED,
   STATUS_BAD_REQUEST,
+  STATUS_NOT_FOUND,
   STATUS_INTERNAL_SERVER_ERROR,
 } = require('../utils/serverStatus');
 
@@ -65,6 +69,25 @@ const createUser = (req, res) => {
     });
 };
 
+const login = (req, res, next) => {
+  const { email, password } = req.body;
+  User.findOne({ email })
+    .orFail(() => res.status(STATUS_NOT_FOUND).send({ message: 'Пользователь не найден' }))
+    .then((user) => {
+      bcrypt.compare(password, user.password).then((matched) => {
+        if (!matched) {
+          throw new NotFoundError('Пользователь не найден');
+        }
+        return user;
+      });
+    })
+    .then((user) => {
+      const jwt = jsonwebtoken.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
+      res.send({ user, jwt }).catch(next);
+    });
+};
+
+// PATCH /me
 const updateUser = (req, res) => {
   const userId = req.user._id;
   const { name, about } = req.body;
@@ -134,6 +157,7 @@ const updateAvatar = (req, res) => {
 module.exports = {
   getUsers,
   getUser,
+  login,
   createUser,
   updateUser,
   updateAvatar,
