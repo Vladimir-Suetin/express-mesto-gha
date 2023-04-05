@@ -1,4 +1,5 @@
 const User = require('../models/user');
+const bcrypt = require('bcrypt');
 const {
   STATUS_OK,
   STATUS_CREATED,
@@ -8,6 +9,7 @@ const {
 
 const NotFoundError = require('../errors/notFoundError');
 
+// GET /users
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.status(STATUS_OK).send({ users }))
@@ -17,6 +19,7 @@ const getUsers = (req, res) => {
     });
 };
 
+// GET /users/:id
 const getUser = (req, res) => {
   const { id } = req.params;
 
@@ -39,9 +42,12 @@ const getUser = (req, res) => {
     });
 };
 
+// POST /users
 const createUser = (req, res) => {
-  User.create({ ...req.body })
-
+  const { name, email, password } = req.body;
+  bcrypt
+    .hash(password, 10)
+    .then((hash) => User.create({ name, email, password: hash }))
     .then((user) => {
       res.status(STATUS_CREATED).send({ user });
     })
@@ -68,7 +74,7 @@ const updateUser = (req, res) => {
     {
       new: true, // обработчик then получит на вход обновлённую запись
       runValidators: true, // данные будут валидированы перед изменением
-    },
+    }
   )
     .then((user) => {
       if (!user) {
@@ -101,7 +107,7 @@ const updateAvatar = (req, res) => {
     {
       new: true, // обработчик then получит на вход обновлённую запись
       runValidators: true, // данные будут валидированы перед изменением});
-    },
+    }
   )
     .then((user) => {
       if (!user) {
