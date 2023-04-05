@@ -46,7 +46,7 @@ const getUser = (req, res) => {
     });
 };
 
-// POST /users
+// POST /users/signup
 const createUser = (req, res) => {
   const { name, email, password } = req.body;
   bcrypt
@@ -69,6 +69,7 @@ const createUser = (req, res) => {
     });
 };
 
+// POST /users/signin
 const login = (req, res, next) => {
   const { email, password } = req.body;
   User.findOne({ email })
@@ -121,6 +122,7 @@ const updateUser = (req, res) => {
     });
 };
 
+// PATCH users/me/avatar
 const updateAvatar = (req, res) => {
   const userId = req.user._id;
   const { avatar } = req.body;

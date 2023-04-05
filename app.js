@@ -1,13 +1,13 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const routes = require('./routes');
 const helmet = require('helmet');
 const cors = require('cors');
+const routes = require('./routes');
 
-const { PORT = 3000 } = process.env;
+const { PORT, DB_ADDRESS } = require('./config');
 
-mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
+mongoose.connect(DB_ADDRESS, {
   useNewUrlParser: true,
   // autoIndex: true,
 });
