@@ -38,11 +38,14 @@ const createCard = (req, res) => {
 };
 
 const deleteCard = (req, res) => {
-  const { cardId } = req.params.id;
+  const { cardId } = req.params;
   Card.findByIdAndRemove(cardId)
     .then((card) => {
       if (!card) {
         throw new NotFoundError(`Карточка id: ${cardId} не найдена`);
+      }
+      if (card.owner.toString() !== req.user._id) {
+        return res.status(404).send({ message: 'Нельзя удалять чужую карточку' });
       }
       res.status(STATUS_OK).send({ message: `Карточка '${card.name}' удалена` });
     })
@@ -64,7 +67,7 @@ const likeCard = (req, res) => {
   Card.findByIdAndUpdate(
     cardId,
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
-    { new: true },
+    { new: true }
   )
     .populate('likes')
     .then((card) => {
@@ -91,7 +94,7 @@ const dislikeCard = (req, res) => {
   Card.findByIdAndUpdate(
     cardId,
     { $pull: { likes: req.user._id } }, // убрать _id из массива
-    { new: true },
+    { new: true }
   )
     .then((card) => {
       if (!card) {

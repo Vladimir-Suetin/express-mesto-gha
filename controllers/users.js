@@ -97,7 +97,7 @@ const login = (req, res, next) => {
   const { email, password } = req.body;
 
   User
-    .findOne({ email })
+    .findOne({ email }).select('+password')
     .orFail(() => res.status(404).send({ message: 'Пользователь не найден' }))
     .then((user) => bcrypt.compare(password, user.password).then((matched) => {
       if (matched) {
