@@ -41,6 +41,7 @@ const getUser = (req, res) => {
 
 const createUser = (req, res) => {
   User.create({ ...req.body })
+
     .then((user) => {
       res.status(STATUS_CREATED).send({ user });
     })
@@ -49,6 +50,9 @@ const createUser = (req, res) => {
         return res.status(STATUS_BAD_REQUEST).send({
           message: err.message,
         });
+      }
+      if (err.code === 11000) {
+        return res.status(409).send({ message: 'Пользователь с такими данными уже существует' });
       }
       res.status(STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' });
       return console.log({ message: err.message });
