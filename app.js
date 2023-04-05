@@ -19,15 +19,6 @@ app.use(cors({ origin: 'http://127.0.0.1:3000' }));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use((req, res, next) => {
-  req.user = {
-    // вставьте сюда _id созданного в предыдущем пункте пользователя
-    _id: '641b150d577fc5e6aa3d233d',
-  };
-
-  next();
-});
-
 app.use(routes);
 
 app.listen(PORT, () => {
