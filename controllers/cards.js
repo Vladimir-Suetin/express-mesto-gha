@@ -1,6 +1,6 @@
 const Card = require('../models/card');
 
-const { STATUS_OK, STATUS_CREATED, STATUS_BAD_REQUEST, STATUS_NOT_FOUND } = require('../utils/serverStatus');
+const { STATUS_OK, STATUS_CREATED, STATUS_BAD_REQUEST } = require('../utils/serverStatus');
 
 const NotFoundError = require('../errors/notFoundError');
 const BadRequestError = require('../errors/badRequestError');
@@ -25,7 +25,7 @@ const createCard = (req, res, next) => {
           message: err.message,
         });
       }
-      next(err);
+      return next(err);
     });
 };
 
@@ -47,7 +47,7 @@ const deleteCard = (req, res, next) => {
       if (err instanceof NotFoundError) {
         return res.status(err.statusCode).send({ message: err.message });
       }
-      next(err);
+      return next(err);
     });
 };
 
@@ -57,7 +57,7 @@ const likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     cardId,
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
-    { new: true }
+    { new: true },
   )
     .populate('likes')
     .then((card) => {
@@ -73,7 +73,7 @@ const likeCard = (req, res, next) => {
       if (err.name === 'CastError') {
         return res.status(STATUS_BAD_REQUEST).send({ message: 'введен некорректный id карточки' });
       }
-      next(err);
+      return next(err);
     });
 };
 
@@ -83,7 +83,7 @@ const dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     cardId,
     { $pull: { likes: req.user._id } }, // убрать _id из массива
-    { new: true }
+    { new: true },
   )
     .then((card) => {
       if (!card) {
@@ -98,7 +98,7 @@ const dislikeCard = (req, res, next) => {
       if (err.name === 'CastError') {
         return res.status(STATUS_BAD_REQUEST).send({ message: 'введен некорректный id карточки' });
       }
-      next(err);
+      return next(err);
     });
 };
 

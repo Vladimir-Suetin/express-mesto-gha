@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const cors = require('cors');
 const routes = require('./routes');
-const errorHandler = require('./middlewares/handleError')
+const errorHandler = require('./middlewares/handleError');
 
 const { PORT, DB_ADDRESS } = require('./config');
 

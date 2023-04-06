@@ -39,7 +39,7 @@ const getUser = (req, res, next) => {
       if (err.name === 'CastError') {
         return res.status(STATUS_BAD_REQUEST).send({ message: 'введен некорректный id пользователя' });
       }
-      next(err);
+      return next(err);
     });
 };
 
@@ -81,7 +81,7 @@ const createUser = (req, res, next) => {
       if (err.code === 11000) {
         return res.status(STATUS_CONFLICT).send({ message: 'Пользователь с такими данными уже существует' });
       }
-      next(err);
+      return next(err);
     });
 };
 
@@ -92,14 +92,12 @@ const login = (req, res, next) => {
   User.findOne({ email })
     .select('+password')
     .orFail(() => res.status(404).send({ message: 'Пользователь не найден' }))
-    .then((user) => {
-      return bcrypt.compare(password, user.password).then((matched) => {
-        if (matched) {
-          return user;
-        }
-        throw new NotFoundError('Пользователь не найден');
-      });
-    })
+    .then((user) => bcrypt.compare(password, user.password).then((matched) => {
+      if (matched) {
+        return user;
+      }
+      throw new NotFoundError('Пользователь не найден');
+    }))
     .then((user) => {
       const jwt = jsonwebtoken.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
       res.send({ user, jwt });
@@ -117,7 +115,7 @@ const updateUser = (req, res, next) => {
     {
       new: true, // обработчик then получит на вход обновлённую запись
       runValidators: true, // данные будут валидированы перед изменением
-    }
+    },
   )
     .then((user) => {
       if (!user) {
@@ -136,7 +134,7 @@ const updateUser = (req, res, next) => {
           message: err.message,
         });
       }
-      next(err);
+      return next(err);
     });
 };
 
@@ -150,7 +148,7 @@ const updateAvatar = (req, res, next) => {
     {
       new: true, // обработчик then получит на вход обновлённую запись
       runValidators: true, // данные будут валидированы перед изменением});
-    }
+    },
   )
     .then((user) => {
       if (!user) {
@@ -169,7 +167,7 @@ const updateAvatar = (req, res, next) => {
           message: err.message,
         });
       }
-      next(err);
+      return next(err);
     });
 };
 
