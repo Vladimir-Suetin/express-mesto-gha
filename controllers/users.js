@@ -92,14 +92,14 @@ const login = (req, res, next) => {
   User.findOne({ email })
     .select('+password')
     .orFail(() => res.status(404).send({ message: 'Пользователь не найден' }))
-    .then((user) =>
-      bcrypt.compare(password, user.password).then((matched) => {
+    .then((user) => {
+      return bcrypt.compare(password, user.password).then((matched) => {
         if (matched) {
           return user;
         }
         throw new NotFoundError('Пользователь не найден');
-      })
-    )
+      });
+    })
     .then((user) => {
       const jwt = jsonwebtoken.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
       res.send({ user, jwt });

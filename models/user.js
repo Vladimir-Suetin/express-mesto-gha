@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
+const { linkRegex } = require('../utils/linkRegex');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -20,6 +21,12 @@ const userSchema = new mongoose.Schema({
     type: String,
     requred: true,
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
+    validate: {
+      validator(v) {
+        return linkRegex.test(v);
+      },
+      message: 'ссылка некорректная',
+    },
   },
   email: {
     type: String,

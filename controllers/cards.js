@@ -3,7 +3,7 @@ const Card = require('../models/card');
 const { STATUS_OK, STATUS_CREATED, STATUS_BAD_REQUEST, STATUS_NOT_FOUND } = require('../utils/serverStatus');
 
 const NotFoundError = require('../errors/notFoundError');
-const BadRequestError = require('../errors/badRequestError')
+const BadRequestError = require('../errors/badRequestError');
 
 const getCards = (req, res, next) => {
   Card.find({})
@@ -35,7 +35,6 @@ const deleteCard = (req, res, next) => {
     .orFail(new NotFoundError(`Карточка id: ${cardId} не найдена`))
     .then((card) => {
       if (card.owner.toString() !== req.user._id) {
-        // return res.status(STATUS_NOT_FOUND).send({ message: 'Нельзя удалять чужую карточку' });
         throw new BadRequestError('Нельзя удалять чужую карточку');
       }
       return Card.findByIdAndRemove(cardId);
