@@ -8,7 +8,6 @@ const {
   STATUS_CREATED,
   STATUS_BAD_REQUEST,
   STATUS_NOT_FOUND,
-  STATUS_INTERNAL_SERVER_ERROR,
   STATUS_CONFLICT,
 } = require('../utils/serverStatus');
 
@@ -16,17 +15,14 @@ const NotFoundError = require('../errors/notFoundError');
 const Unauthorized = require('../errors/unauthorized');
 
 // GET /users
-const getUsers = (req, res) => {
+const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.status(STATUS_OK).send({ users }))
-    .catch((err) => {
-      res.status(STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' });
-      console.log({ message: err.message });
-    });
+    .catch(next);
 };
 
 // GET /users/:id
-const getUser = (req, res) => {
+const getUser = (req, res, next) => {
   const { id } = req.params;
 
   return User.findById(id)
@@ -43,8 +39,7 @@ const getUser = (req, res) => {
       if (err.name === 'CastError') {
         return res.status(STATUS_BAD_REQUEST).send({ message: 'введен некорректный id пользователя' });
       }
-      res.status(STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' });
-      return console.log({ message: err.message });
+      next(err);
     });
 };
 
@@ -86,8 +81,6 @@ const createUser = (req, res, next) => {
       if (err.code === 11000) {
         return res.status(STATUS_CONFLICT).send({ message: 'Пользователь с такими данными уже существует' });
       }
-      // res.status(STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' });
-      // return console.log({ message: err.message });
       next(err);
     });
 };
@@ -96,15 +89,17 @@ const createUser = (req, res, next) => {
 const login = (req, res, next) => {
   const { email, password } = req.body;
 
-  User
-    .findOne({ email }).select('+password')
+  User.findOne({ email })
+    .select('+password')
     .orFail(() => res.status(404).send({ message: 'Пользователь не найден' }))
-    .then((user) => bcrypt.compare(password, user.password).then((matched) => {
-      if (matched) {
-        return user;
-      }
-      throw new NotFoundError('Пользователь не найден');
-    }))
+    .then((user) =>
+      bcrypt.compare(password, user.password).then((matched) => {
+        if (matched) {
+          return user;
+        }
+        throw new NotFoundError('Пользователь не найден');
+      })
+    )
     .then((user) => {
       const jwt = jsonwebtoken.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
       res.send({ user, jwt });
@@ -113,7 +108,7 @@ const login = (req, res, next) => {
 };
 
 // PATCH /me
-const updateUser = (req, res) => {
+const updateUser = (req, res, next) => {
   const userId = req.user._id;
   const { name, about } = req.body;
   User.findByIdAndUpdate(
@@ -141,13 +136,12 @@ const updateUser = (req, res) => {
           message: err.message,
         });
       }
-      res.status(STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' });
-      return console.log({ message: err.message });
+      next(err);
     });
 };
 
 // PATCH users/me/avatar
-const updateAvatar = (req, res) => {
+const updateAvatar = (req, res, next) => {
   const userId = req.user._id;
   const { avatar } = req.body;
   User.findByIdAndUpdate(
@@ -175,8 +169,7 @@ const updateAvatar = (req, res) => {
           message: err.message,
         });
       }
-      res.status(STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' });
-      return console.log({ message: err.message });
+      next(err);
     });
 };
 
