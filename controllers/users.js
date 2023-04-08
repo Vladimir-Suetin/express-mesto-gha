@@ -37,9 +37,6 @@ const getUser = (req, res, next) => {
 // GET /users/me (возвращает информацию о текущем пользователе)
 const getCurrentUser = (req, res, next) => {
   const { authorization } = req.headers;
-  if (!authorization || !authorization.startsWith('Bearer')) {
-    throw new Unauthorized({ message: 'Необходима авторизация' });
-  }
   let payload;
   const jwt = authorization.replace('Bearer ', '');
   try {
@@ -50,7 +47,9 @@ const getCurrentUser = (req, res, next) => {
 
   User.findById(payload._id)
     .orFail(() => res.status(STATUS.NOT_FOUND).send({ message: 'Пользователь не найден' }))
-    .then((user) => res.send(user))
+    .then((user) => {
+      res.send(user);
+    })
     .catch(next);
 };
 
