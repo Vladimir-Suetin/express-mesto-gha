@@ -8,14 +8,14 @@ const { STATUS } = require('../utils/serverStatus');
 const NotFoundError = require('../errors/notFoundError');
 const Unauthorized = require('../errors/unauthorized');
 
-// GET /users
+// GET /users (возвращает всех пользователей)
 const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.status(STATUS.OK).send({ users }))
     .catch(next);
 };
 
-// GET /users/:id
+// GET /users/:id (возвращает пользователя по id)
 const getUser = (req, res, next) => {
   const { id } = req.params;
 
@@ -27,9 +27,6 @@ const getUser = (req, res, next) => {
       res.status(STATUS.OK).send({ user });
     })
     .catch((err) => {
-      if (err instanceof NotFoundError) {
-        return res.status(err.statusCode).send({ message: err.message });
-      }
       if (err.name === 'CastError') {
         return res.status(STATUS.BAD_REQUEST).send({ message: 'введен некорректный id пользователя' });
       }
@@ -37,7 +34,7 @@ const getUser = (req, res, next) => {
     });
 };
 
-// GET /users/me
+// GET /users/me (возвращает информацию о текущем пользователе)
 const getCurrentUser = (req, res, next) => {
   const { authorization } = req.headers;
   if (!authorization || !authorization.startsWith('Bearer')) {
@@ -57,7 +54,7 @@ const getCurrentUser = (req, res, next) => {
     .catch(next);
 };
 
-// POST /users/signup
+// POST /users/signup (создает пользователя по email и password)
 const createUser = (req, res, next) => {
   const { name, email, password } = req.body;
   bcrypt
@@ -79,7 +76,7 @@ const createUser = (req, res, next) => {
     });
 };
 
-// POST /users/signin
+// POST /users/signin (авторизует пользователя по email и password)
 const login = (req, res, next) => {
   const { email, password } = req.body;
 
@@ -102,7 +99,7 @@ const login = (req, res, next) => {
     .catch(next);
 };
 
-// PATCH /me
+// PATCH /me (обновляет данные пользователя name и about)
 const updateUser = (req, res, next) => {
   const userId = req.user._id;
   const { name, about } = req.body;
@@ -121,11 +118,6 @@ const updateUser = (req, res, next) => {
       res.status(STATUS.OK).send({ user });
     })
     .catch((err) => {
-      if (err instanceof NotFoundError) {
-        return res.status(err.statusCode).send({
-          message: err.message,
-        });
-      }
       if (err.name === 'ValidationError') {
         return res.status(STATUS.BAD_REQUEST).send({
           message: err.message,
@@ -135,7 +127,7 @@ const updateUser = (req, res, next) => {
     });
 };
 
-// PATCH users/me/avatar
+// PATCH users/me/avatar (обновляет аватар пользователя)
 const updateAvatar = (req, res, next) => {
   const userId = req.user._id;
   const { avatar } = req.body;

@@ -4,7 +4,9 @@ const { STATUS } = require('../utils/serverStatus');
 
 const NotFoundError = require('../errors/notFoundError');
 const BadRequestError = require('../errors/badRequestError');
+const ForbiddenError = require('../errors/forbiddenError');
 
+// GET cards/ (возвращает все карточки)
 const getCards = (req, res, next) => {
   Card.find({})
     .populate(['owner', 'likes'])
@@ -12,6 +14,7 @@ const getCards = (req, res, next) => {
     .catch(next);
 };
 
+// POST cards/ (создает карточку)
 const createCard = (req, res, next) => {
   const owner = req.user._id;
   const { name, link } = req.body;
@@ -29,28 +32,27 @@ const createCard = (req, res, next) => {
     });
 };
 
+// DELETE users/:cardId (удаляет карточку)
 const deleteCard = (req, res, next) => {
   const { cardId } = req.params;
   Card.findById(cardId)
     .orFail(new NotFoundError(`Карточка id: ${cardId} не найдена`))
     .then((card) => {
       if (card.owner.toString() !== req.user._id) {
-        throw new BadRequestError('Нельзя удалять чужую карточку');
+        throw new ForbiddenError('Нельзя удалять чужую карточку');
       }
-      return Card.findByIdAndRemove(cardId);
+      return Card.deleteOne(cardId);
     })
     .then((card) => res.status(STATUS.OK).send({ message: `Карточка '${card.name}' удалена` }))
     .catch((err) => {
       if (err.name === 'CastError') {
         return res.status(STATUS.BAD_REQUEST).send({ message: 'введен некорректный id карточки' });
       }
-      if (err instanceof NotFoundError) {
-        return res.status(err.statusCode).send({ message: err.message });
-      }
       return next(err);
     });
 };
 
+// PUT cards/:cardId/likes (устанавливает лайк карточке)
 const likeCard = (req, res, next) => {
   const { cardId } = req.params;
 
@@ -67,9 +69,6 @@ const likeCard = (req, res, next) => {
       res.status(STATUS.OK).send({ card });
     })
     .catch((err) => {
-      if (err instanceof NotFoundError) {
-        return res.status(err.statusCode).send({ message: err.message });
-      }
       if (err.name === 'CastError') {
         return res.status(STATUS.BAD_REQUEST).send({ message: 'введен некорректный id карточки' });
       }
@@ -77,6 +76,7 @@ const likeCard = (req, res, next) => {
     });
 };
 
+// DELETE cards/:cardId/likes (удаляет лайк с карточки)
 const dislikeCard = (req, res, next) => {
   const { cardId } = req.params;
 
