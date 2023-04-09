@@ -12,9 +12,7 @@ const cardSchema = new mongoose.Schema({
     type: String,
     requred: true,
     validate: {
-      validator(v) {
-        return linkRegex.test(v);
-      },
+      validator: (v) => linkRegex.test(v),
       message: 'ссылка некорректная',
     },
   },
