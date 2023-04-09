@@ -37,9 +37,6 @@ const getUser = (req, res, next) => {
 // GET /users/me (возвращает информацию о текущем пользователе)
 const getCurrentUser = (req, res, next) => {
   const { authorization } = req.headers;
-  // if (!Authorization || !Authorization.startsWith('Bearer')) {
-  //   throw new Unauthorized({ message: 'Необходима авторизация' });
-  // }
   const jwt = authorization.replace('Bearer ', '');
   let payload;
   try {
@@ -82,7 +79,6 @@ const login = (req, res, next) => {
   const { email, password } = req.body;
 
   User.findOne({ email })
-    .select('+password')
     .orFail(() => {
       next(new Unauthorized('Пользователь не найден'));
     })
@@ -112,7 +108,7 @@ const updateUser = (req, res, next) => {
     {
       new: true, // обработчик then получит на вход обновлённую запись
       runValidators: true, // данные будут валидированы перед изменением
-    }
+    },
   )
     .then((user) => {
       if (!user) {
@@ -140,7 +136,7 @@ const updateAvatar = (req, res, next) => {
     {
       new: true, // обработчик then получит на вход обновлённую запись
       runValidators: true, // данные будут валидированы перед изменением});
-    }
+    },
   )
     .then((user) => {
       if (!user) {

@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { linkRegex } = require('../utils/linkRegex');
+const { REGEXP_URL } = require('../utils/linkRegex');
 
 const cardSchema = new mongoose.Schema({
   name: {
@@ -12,7 +12,7 @@ const cardSchema = new mongoose.Schema({
     type: String,
     requred: true,
     validate: {
-      validator: (v) => linkRegex.test(v),
+      validator: (v) => REGEXP_URL.test(v),
       message: 'ссылка некорректная',
     },
   },
