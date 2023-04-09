@@ -1,7 +1,9 @@
 const Card = require('../models/card');
 const { STATUS } = require('../utils/serverStatus');
+
 const NotFoundError = require('../errors/notFoundError');
 const ForbiddenError = require('../errors/forbiddenError');
+const BadRequestError = require('../errors/badRequestError');
 
 // GET cards/ (возвращает все карточки)
 const getCards = (req, res, next) => {
@@ -21,9 +23,7 @@ const createCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(STATUS.BAD_REQUEST).send({
-          message: err.message,
-        });
+        return next(new BadRequestError({ message: 'Данные не прошли валидацию' }));
       }
       return next(err);
     });
@@ -43,7 +43,7 @@ const deleteCard = (req, res, next) => {
     .then((card) => res.status(STATUS.OK).send({ message: `Карточка '${card.name}' удалена` }))
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(STATUS.BAD_REQUEST).send({ message: 'введен некорректный id карточки' });
+        return next(new BadRequestError({ message: 'введен некорректный id карточки' }));
       }
       return next(err);
     });
@@ -56,7 +56,7 @@ const likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     cardId,
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
-    { new: true },
+    { new: true }
   )
     .populate('likes')
     .then((card) => {
@@ -67,7 +67,7 @@ const likeCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(STATUS.BAD_REQUEST).send({ message: 'введен некорректный id карточки' });
+        return next(new BadRequestError({ message: 'введен некорректный id карточки' }));
       }
       return next(err);
     });
@@ -80,7 +80,7 @@ const dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     cardId,
     { $pull: { likes: req.user._id } }, // убрать _id из массива
-    { new: true },
+    { new: true }
   )
     .then((card) => {
       if (!card) {
@@ -89,11 +89,8 @@ const dislikeCard = (req, res, next) => {
       res.status(STATUS.OK).send({ card });
     })
     .catch((err) => {
-      if (err instanceof NotFoundError) {
-        return res.status(err.statusCode).send({ message: err.message });
-      }
       if (err.name === 'CastError') {
-        return res.status(STATUS.BAD_REQUEST).send({ message: 'введен некорректный id карточки' });
+        return next(new BadRequestError({ message: 'введен некорректный id карточки' }));
       }
       return next(err);
     });
