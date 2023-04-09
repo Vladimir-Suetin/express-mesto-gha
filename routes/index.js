@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { celebrate, Joi, errors } = require('celebrate');
+const { celebrate, Joi } = require('celebrate');
 const REGEXP_URL = require('../utils/linkRegex');
 const auth = require('../middlewares/auth');
 const { login, createUser } = require('../controllers/users');
@@ -35,8 +35,6 @@ router.post(
   }),
   login,
 );
-
-router.use(errors());
 
 router.use('*', (req, res, next) => {
   next(new NotFoundError(`страницы ${req.baseUrl} не существует`));

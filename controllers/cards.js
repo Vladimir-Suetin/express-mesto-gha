@@ -23,7 +23,7 @@ const createCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return next(new BadRequestError({ message: 'Данные не прошли валидацию' }));
+        return next(new BadRequestError('Данные не прошли валидацию'));
       }
       return next(err);
     });
@@ -40,10 +40,10 @@ const deleteCard = (req, res, next) => {
       }
       return Card.deleteOne(cardId);
     })
-    .then((card) => res.status(STATUS.OK).send({ message: `Карточка '${card.name}' удалена` }))
+    .then((card) => res.status(STATUS.OK).send(`Карточка '${card.name}' удалена`))
     .catch((err) => {
       if (err.name === 'CastError') {
-        return next(new BadRequestError({ message: 'введен некорректный id карточки' }));
+        return next(new BadRequestError('введен некорректный id карточки'));
       }
       return next(err);
     });
@@ -56,7 +56,7 @@ const likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     cardId,
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
-    { new: true }
+    { new: true },
   )
     .populate('likes')
     .then((card) => {
@@ -67,7 +67,7 @@ const likeCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return next(new BadRequestError({ message: 'введен некорректный id карточки' }));
+        return next(new BadRequestError('введен некорректный id карточки'));
       }
       return next(err);
     });
@@ -80,7 +80,7 @@ const dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     cardId,
     { $pull: { likes: req.user._id } }, // убрать _id из массива
-    { new: true }
+    { new: true },
   )
     .then((card) => {
       if (!card) {
@@ -90,7 +90,7 @@ const dislikeCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return next(new BadRequestError({ message: 'введен некорректный id карточки' }));
+        return next(new BadRequestError('введен некорректный id карточки'));
       }
       return next(err);
     });

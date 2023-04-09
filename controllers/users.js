@@ -24,13 +24,13 @@ const getUser = (req, res, next) => {
   return User.findById(id)
     .then((user) => {
       if (!user) {
-        throw new NotFoundError({ message: 'Такого пользователя не существует' });
+        throw new NotFoundError('Такого пользователя не существует');
       }
       res.status(STATUS.OK).send({ user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return next(new BadRequestError({ message: 'введен некорректный id пользователя' }));
+        return next(new BadRequestError('введен некорректный id пользователя'));
       }
       return next(err);
     });
@@ -41,7 +41,7 @@ const getUser = (req, res, next) => {
 const getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
     .orFail(() => {
-      next(new NotFoundError({ message: 'Пользователь не найден' }));
+      next(new NotFoundError('Пользователь не найден'));
     })
     .then((user) => {
       res.status(STATUS.OK).send(user);
@@ -66,10 +66,10 @@ const createUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return next(new BadRequestError({ message: 'Данные не прошли валидацию' }));
+        return next(new BadRequestError('Данные не прошли валидацию'));
       }
       if (err.code === 11000) {
-        return next(new ConflictError({ message: 'Пользователь с такими данными уже существует' }));
+        return next(new ConflictError('Пользователь с такими данными уже существует'));
       }
       return next(err);
     });
@@ -82,14 +82,14 @@ const login = (req, res, next) => {
   User.findOne({ email })
     .select('+password')
     .orFail(() => {
-      next(new UnauthorizedError({ message: 'Пользователь не найден' }));
+      next(new UnauthorizedError('Пользователь не найден'));
     })
     .then((user) => {
       const result = bcrypt.compare(password, user.password).then((matched) => {
         if (matched) {
           return user;
         }
-        throw new UnauthorizedError({ message: 'Пользователь не найден' });
+        throw new UnauthorizedError('Пользователь не найден');
       });
       return result;
     })
@@ -110,17 +110,17 @@ const updateUser = (req, res, next) => {
     {
       new: true, // обработчик then получит на вход обновлённую запись
       runValidators: true, // данные будут валидированы перед изменением
-    }
+    },
   )
     .then((user) => {
       if (!user) {
-        throw new NotFoundError({ message: `Пользователь id: ${userId} не найден` });
+        throw new NotFoundError(`Пользователь id: ${userId} не найден`);
       }
       res.status(STATUS.OK).send({ user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return next(new BadRequestError({ message: 'Данные не прошли валидацию' }));
+        return next(new BadRequestError('Данные не прошли валидацию'));
       }
       return next(err);
     });
@@ -136,17 +136,17 @@ const updateAvatar = (req, res, next) => {
     {
       new: true, // обработчик then получит на вход обновлённую запись
       runValidators: true, // данные будут валидированы перед изменением});
-    }
+    },
   )
     .then((user) => {
       if (!user) {
-        throw new NotFoundError({ message: `Пользователь id: ${userId} не найден` });
+        throw new NotFoundError(`Пользователь id: ${userId} не найден`);
       }
       res.status(STATUS.OK).send({ user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return next(new BadRequestError({ message: 'Данные не прошли валидацию' }));
+        return next(new BadRequestError('Данные не прошли валидацию'));
       }
       return next(err);
     });

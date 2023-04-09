@@ -7,7 +7,7 @@ const auth = (req, res, next) => {
   const { authorization } = req.headers;
 
   if (!authorization || !authorization.startsWith('Bearer')) {
-    return next(new UnauthorizedError({ message: 'Необходима авторизация' }));
+    return next(new UnauthorizedError('Необходима авторизация'));
   }
   const jwt = authorization.replace('Bearer ', '');
   let payload;
