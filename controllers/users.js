@@ -36,12 +36,12 @@ const getUser = (req, res, next) => {
 
 // GET /users/me (возвращает информацию о текущем пользователе)
 const getCurrentUser = (req, res, next) => {
-  const { Authorization } = req.headers;
+  const { authorization } = req.headers;
   // if (!Authorization || !Authorization.startsWith('Bearer')) {
   //   throw new Unauthorized({ message: 'Необходима авторизация' });
   // }
+  const jwt = authorization.replace('Bearer ', '');
   let payload;
-  const jwt = Authorization.replace('Bearer ', '');
   try {
     payload = jsonwebtoken.verify(jwt, JWT_SECRET);
   } catch (err) {
@@ -51,7 +51,7 @@ const getCurrentUser = (req, res, next) => {
     .orFail(() => {
       next(new NotFoundError('Пользователь не найден'));
     })
-    .then((user) => res.send(user))
+    .then((user) => res.send({ user }))
     .catch(next);
 };
 

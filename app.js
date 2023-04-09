@@ -17,8 +17,8 @@ const app = express();
 
 app.use(helmet());
 app.use(cors({ origin: 'http://127.0.0.1:3000' }));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.use(routes);
 app.use(errorHandler);

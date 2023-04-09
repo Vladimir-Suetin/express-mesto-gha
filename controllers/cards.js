@@ -3,7 +3,6 @@ const Card = require('../models/card');
 const { STATUS } = require('../utils/serverStatus');
 
 const NotFoundError = require('../errors/notFoundError');
-const BadRequestError = require('../errors/badRequestError');
 const ForbiddenError = require('../errors/forbiddenError');
 
 // GET cards/ (возвращает все карточки)
