@@ -2,9 +2,10 @@ const router = require('express').Router();
 const { celebrate, Joi, errors } = require('celebrate');
 const REGEXP_URL = require('../utils/linkRegex');
 const { getUsers, getUser, getCurrentUser, updateUser, updateAvatar } = require('../controllers/users');
+const auth = require('../middlewares/auth');
 
-router.get('/', getUsers);
-router.get('/me', getCurrentUser);
+router.get('/', auth, getUsers);
+router.get('/me', auth, getCurrentUser);
 router.patch(
   '/me',
   celebrate({
@@ -13,7 +14,8 @@ router.patch(
       about: Joi.string().min(2).max(30).required(),
     }),
   }),
-  updateUser,
+  auth,
+  updateUser
 );
 router.patch(
   '/me/avatar',
@@ -22,7 +24,8 @@ router.patch(
       avatar: Joi.string().regex(REGEXP_URL),
     }),
   }),
-  updateAvatar,
+  auth,
+  updateAvatar
 );
 router.get('/:id', getUser);
 
