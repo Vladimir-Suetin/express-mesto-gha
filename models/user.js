@@ -5,14 +5,12 @@ const { linkRegex } = require('../utils/linkRegex');
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
-    requred: true,
     minlength: 2,
     maxlength: 30,
     default: 'Жак-Ив Кусто',
   },
   about: {
     type: String,
-    requred: true,
     minlength: 2,
     maxlength: 30,
     default: 'Исследователь',

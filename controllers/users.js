@@ -36,20 +36,22 @@ const getUser = (req, res, next) => {
 
 // GET /users/me (возвращает информацию о текущем пользователе)
 const getCurrentUser = (req, res, next) => {
-  const { authorization } = req.headers;
+  const { Authorization } = req.headers;
+  // if (!Authorization || !Authorization.startsWith('Bearer')) {
+  //   throw new Unauthorized({ message: 'Необходима авторизация' });
+  // }
   let payload;
-  const jwt = authorization.replace('Bearer ', '');
+  const jwt = Authorization.replace('Bearer ', '');
   try {
     payload = jsonwebtoken.verify(jwt, JWT_SECRET);
   } catch (err) {
     throw new Unauthorized({ message: 'Необходима авторизация' });
   }
-
   User.findById(payload._id)
-    .orFail(() => res.status(STATUS.NOT_FOUND).send({ message: 'Пользователь не найден' }))
-    .then((user) => {
-      res.send(user);
+    .orFail(() => {
+      next(new NotFoundError('Пользователь не найден'));
     })
+    .then((user) => res.send(user))
     .catch(next);
 };
 
@@ -81,7 +83,9 @@ const login = (req, res, next) => {
 
   User.findOne({ email })
     .select('+password')
-    .orFail(() => res.status(STATUS.NOT_FOUND).send({ message: 'Пользователь не найден' }))
+    .orFail(() => {
+      next(new Unauthorized('Пользователь не найден'));
+    })
     .then((user) => {
       const result = bcrypt.compare(password, user.password).then((matched) => {
         if (matched) {

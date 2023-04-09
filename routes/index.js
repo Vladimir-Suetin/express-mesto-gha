@@ -1,13 +1,16 @@
 const router = require('express').Router();
 const userRoutes = require('./users');
 const cardRoutes = require('./cards');
-const { STATUS } = require('../utils/serverStatus');
+// const { login, createUser } = require('../controllers/users');
+const NotFoundError = require('../errors/notFoundError');
 
 router.use('/users', userRoutes);
 router.use('/cards', cardRoutes);
+// router.post('/users/signup', createUser);
+// router.post('/users/signin', login);
 
-router.use((req, res) => {
-  res.status(STATUS.NOT_FOUND).send({ error: 'Что то пошло не так' });
-});
+// router.use('*', (req, res, next) => {
+//   next(new NotFoundError(`страницы ${req.baseUrl} не существует`));
+// });
 
 module.exports = router;
