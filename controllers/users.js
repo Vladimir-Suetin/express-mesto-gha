@@ -37,21 +37,16 @@ const getUser = (req, res, next) => {
 };
 
 // GET /users/me (возвращает информацию о текущем пользователе)
+// аутентификация происходит в auth, поделючается через роуты
 const getCurrentUser = (req, res, next) => {
-  const { authorization } = req.headers;
-  const jwt = authorization.replace('Bearer ', '');
-  let payload;
-  try {
-    payload = jsonwebtoken.verify(jwt, JWT_SECRET);
-  } catch (err) {
-    throw new UnauthorizedError({ message: 'Необходима авторизация' });
-  }
-  User.findById(payload._id)
+  User.findById(req.user._id)
     .orFail(() => {
       next(new NotFoundError({ message: 'Пользователь не найден' }));
     })
-    .then((user) => res.send({ user }))
-    .catch(next);
+    .then((user) => {
+      res.status(STATUS.OK).send(user);
+    })
+    .catch((err) => next(err));
 };
 
 // POST /users/signup (создает пользователя по email и password)
